@@ -1,0 +1,58 @@
+<%- include('partials/header.ejs') %>
+
+<form>
+    <h2>Sign up</h2>
+    <label for="email">Email</label>
+    <input type="text" name="email" required />
+    <div class="email error"></div>
+    <label for="password">Password</label>
+    <input type="password" name="password" required />
+    <div class="password error"></div>
+    <button>Sign up</button>
+    <p><small>Already have an account?</small> <a href="/login">Login.</a></p>
+</form>
+
+<script>
+    const form = document.querySelector('form'); // this is what just got submitted // its properties are name="email" and name="password"
+    const emailError = document.querySelector('.email.error'); // refers to the email error div / class
+    const passwordError = document.querySelector('.password.error'); // refers to the password error class
+
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // e is event object // Default is to refresh the page // preventDefault stops it from refreshing upon clicked
+    
+    // GET THE VALUES
+    const email = form.email.value;
+    const password = form.password.value;
+
+    // CLEAR ERRORS EVERYTIME SUBMIT IS CLICKED
+    emailError.textContent = '';
+    passwordError.textContent = '';
+
+    // TRY TO SEND RESPONSE 
+    try {
+        const res = await fetch('/signup', { // this is the response we get after the request is made
+            method: 'POST',
+            body: JSON.stringify({ email, password }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+
+        console.log(data); // data has error property which has the pass and email ones
+
+        if (data.errors) {
+            emailError.textContent = data.errors.email;
+            passwordError.textContent = data.errors.password;
+        }
+
+        if (data.user) {
+            location.assign('/login'); // this is how we redirect from the front end
+        }
+
+    } catch (err) {
+        console.log(err);
+    }
+    });
+</script>
+
+<%- include('partials/footer.ejs') %>
